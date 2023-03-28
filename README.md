@@ -1,4 +1,4 @@
-# terraform
+# Speakeasy Terraform Provider
 
 <!-- Start SDK Installation -->
 ## Notice of Alpha Status
