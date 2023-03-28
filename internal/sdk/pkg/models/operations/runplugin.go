@@ -7,19 +7,11 @@ import (
 	"speakeasy/internal/sdk/pkg/models/shared"
 )
 
-type RunPluginPathParams struct {
-	// The ID of the plugin to run.
-	PluginID string `pathParam:"style=simple,explode=false,name=pluginID"`
-}
-
-type RunPluginQueryParams struct {
+type RunPluginRequest struct {
 	// The filter to apply to the query.
 	Filters *shared.Filters `queryParam:"serialization=json,name=filters"`
-}
-
-type RunPluginRequest struct {
-	PathParams  RunPluginPathParams
-	QueryParams RunPluginQueryParams
+	// The ID of the plugin to run.
+	PluginID string `pathParam:"style=simple,explode=false,name=pluginID"`
 }
 
 type RunPluginResponse struct {

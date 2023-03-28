@@ -7,15 +7,11 @@ import (
 	"speakeasy/internal/sdk/pkg/models/shared"
 )
 
-type GetAllForVersionAPIEndpointsPathParams struct {
+type GetAllForVersionAPIEndpointsRequest struct {
 	// The ID of the Api to retrieve ApiEndpoints for.
 	APIID string `pathParam:"style=simple,explode=false,name=apiID"`
 	// The version ID of the Api to retrieve ApiEndpoints for.
 	VersionID string `pathParam:"style=simple,explode=false,name=versionID"`
-}
-
-type GetAllForVersionAPIEndpointsRequest struct {
-	PathParams GetAllForVersionAPIEndpointsPathParams
 }
 
 type GetAllForVersionAPIEndpointsResponse struct {

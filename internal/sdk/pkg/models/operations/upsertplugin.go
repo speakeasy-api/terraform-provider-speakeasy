@@ -7,11 +7,6 @@ import (
 	"speakeasy/internal/sdk/pkg/models/shared"
 )
 
-type UpsertPluginRequest struct {
-	// A JSON representation of the Api to upsert
-	Request shared.Plugin `request:"mediaType=application/json"`
-}
-
 type UpsertPluginResponse struct {
 	ContentType string
 	// Default error response

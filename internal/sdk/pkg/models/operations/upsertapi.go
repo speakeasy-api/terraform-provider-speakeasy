@@ -7,15 +7,11 @@ import (
 	"speakeasy/internal/sdk/pkg/models/shared"
 )
 
-type UpsertAPIPathParams struct {
+type UpsertAPIRequest struct {
+	// A JSON representation of the Api to upsert
+	APIInput shared.APIInput `request:"mediaType=application/json"`
 	// The ID of the Api to upsert.
 	APIID string `pathParam:"style=simple,explode=false,name=apiID"`
-}
-
-type UpsertAPIRequest struct {
-	PathParams UpsertAPIPathParams
-	// A JSON representation of the Api to upsert
-	Request shared.APIInput `request:"mediaType=application/json"`
 }
 
 type UpsertAPIResponse struct {

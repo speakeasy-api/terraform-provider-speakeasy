@@ -7,15 +7,11 @@ import (
 	"speakeasy/internal/sdk/pkg/models/shared"
 )
 
-type DeleteAPIPathParams struct {
+type DeleteAPIRequest struct {
 	// The ID of the Api to delete.
 	APIID string `pathParam:"style=simple,explode=false,name=apiID"`
 	// The version ID of the Api to delete.
 	VersionID string `pathParam:"style=simple,explode=false,name=versionID"`
-}
-
-type DeleteAPIRequest struct {
-	PathParams DeleteAPIPathParams
 }
 
 type DeleteAPIResponse struct {

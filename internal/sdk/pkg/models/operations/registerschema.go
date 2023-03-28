@@ -7,13 +7,6 @@ import (
 	"speakeasy/internal/sdk/pkg/models/shared"
 )
 
-type RegisterSchemaPathParams struct {
-	// The ID of the Api to get the schema for.
-	APIID string `pathParam:"style=simple,explode=false,name=apiID"`
-	// The version ID of the Api to delete metadata for.
-	VersionID string `pathParam:"style=simple,explode=false,name=versionID"`
-}
-
 type RegisterSchemaRequestBodyFile struct {
 	Content []byte `multipartForm:"content"`
 	File    string `multipartForm:"name=file"`
@@ -25,9 +18,12 @@ type RegisterSchemaRequestBody struct {
 }
 
 type RegisterSchemaRequest struct {
-	PathParams RegisterSchemaPathParams
 	// The schema file to upload provided as a multipart/form-data file segment.
-	Request RegisterSchemaRequestBody `request:"mediaType=multipart/form-data"`
+	RequestBody RegisterSchemaRequestBody `request:"mediaType=multipart/form-data"`
+	// The ID of the Api to get the schema for.
+	APIID string `pathParam:"style=simple,explode=false,name=apiID"`
+	// The version ID of the Api to delete metadata for.
+	VersionID string `pathParam:"style=simple,explode=false,name=versionID"`
 }
 
 type RegisterSchemaResponse struct {

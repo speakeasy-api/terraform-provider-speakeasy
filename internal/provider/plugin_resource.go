@@ -6,9 +6,9 @@ import (
 	"context"
 	"fmt"
 	"speakeasy/internal/sdk"
-	"speakeasy/internal/sdk/pkg/models/operations"
 
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"speakeasy/internal/sdk/pkg/models/operations"
 	"speakeasy/internal/validators"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -123,10 +123,7 @@ func (r *PluginResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	request1 := *data.ToSDKType()
-	request := operations.UpsertPluginRequest{
-		Request: request1,
-	}
+	request := *data.ToSDKType()
 	res, err := r.client.Plugins.UpsertPlugin(ctx, request)
 	if err != nil {
 		resp.Diagnostics.AddError("failure to invoke API", err.Error())
@@ -169,11 +166,8 @@ func (r *PluginResource) Read(ctx context.Context, req resource.ReadRequest, res
 	}
 
 	pluginID := data.PluginID.ValueString()
-	pathParams := operations.GetPluginPathParams{
-		PluginID: pluginID,
-	}
 	request := operations.GetPluginRequest{
-		PathParams: pathParams,
+		PluginID: pluginID,
 	}
 	res, err := r.client.Plugins.GetPlugin(ctx, request)
 	if err != nil {
@@ -216,10 +210,7 @@ func (r *PluginResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
-	request1 := *data.ToSDKType()
-	request := operations.UpsertPluginRequest{
-		Request: request1,
-	}
+	request := *data.ToSDKType()
 	res, err := r.client.Plugins.UpsertPlugin(ctx, request)
 	if err != nil {
 		resp.Diagnostics.AddError("failure to invoke API", err.Error())
@@ -262,11 +253,8 @@ func (r *PluginResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	}
 
 	pluginID := data.PluginID.ValueString()
-	pathParams := operations.DeletePluginPathParams{
-		PluginID: pluginID,
-	}
 	request := operations.DeletePluginRequest{
-		PathParams: pathParams,
+		PluginID: pluginID,
 	}
 	res, err := r.client.Plugins.DeletePlugin(ctx, request)
 	if err != nil {

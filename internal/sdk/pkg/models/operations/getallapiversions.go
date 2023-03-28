@@ -7,27 +7,19 @@ import (
 	"speakeasy/internal/sdk/pkg/models/shared"
 )
 
-type GetAllAPIVersionsPathParams struct {
-	// The ID of the Api to retrieve.
-	APIID string `pathParam:"style=simple,explode=false,name=apiID"`
-}
-
 // GetAllAPIVersionsOp - Configuration for filter operations
 type GetAllAPIVersionsOp struct {
 	// Whether to AND or OR the filters
 	And bool `queryParam:"name=and"`
 }
 
-type GetAllAPIVersionsQueryParams struct {
+type GetAllAPIVersionsRequest struct {
+	// The ID of the Api to retrieve.
+	APIID string `pathParam:"style=simple,explode=false,name=apiID"`
 	// Metadata to filter Apis on
 	Metadata map[string][]string `queryParam:"style=deepObject,explode=true,name=metadata"`
 	// Configuration for filter operations
 	Op *GetAllAPIVersionsOp `queryParam:"style=deepObject,explode=true,name=op"`
-}
-
-type GetAllAPIVersionsRequest struct {
-	PathParams  GetAllAPIVersionsPathParams
-	QueryParams GetAllAPIVersionsQueryParams
 }
 
 type GetAllAPIVersionsResponse struct {

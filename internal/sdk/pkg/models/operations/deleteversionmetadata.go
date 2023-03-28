@@ -7,7 +7,7 @@ import (
 	"speakeasy/internal/sdk/pkg/models/shared"
 )
 
-type DeleteVersionMetadataPathParams struct {
+type DeleteVersionMetadataRequest struct {
 	// The ID of the Api to delete metadata for.
 	APIID string `pathParam:"style=simple,explode=false,name=apiID"`
 	// The key of the metadata to delete.
@@ -16,10 +16,6 @@ type DeleteVersionMetadataPathParams struct {
 	MetaValue string `pathParam:"style=simple,explode=false,name=metaValue"`
 	// The version ID of the Api to delete metadata for.
 	VersionID string `pathParam:"style=simple,explode=false,name=versionID"`
-}
-
-type DeleteVersionMetadataRequest struct {
-	PathParams DeleteVersionMetadataPathParams
 }
 
 type DeleteVersionMetadataResponse struct {

@@ -245,7 +245,7 @@ func (s *plugins) RunPlugin(ctx context.Context, request operations.RunPluginReq
 }
 
 // UpsertPlugin - Upsert a plugin
-func (s *plugins) UpsertPlugin(ctx context.Context, request operations.UpsertPluginRequest) (*operations.UpsertPluginResponse, error) {
+func (s *plugins) UpsertPlugin(ctx context.Context, request shared.Plugin) (*operations.UpsertPluginResponse, error) {
 	baseURL := s.serverURL
 	url := strings.TrimSuffix(baseURL, "/") + "/v1/plugins"
 

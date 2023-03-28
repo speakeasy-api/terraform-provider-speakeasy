@@ -7,13 +7,9 @@ import (
 	"speakeasy/internal/sdk/pkg/models/shared"
 )
 
-type GetRequestFromEventLogPathParams struct {
+type GetRequestFromEventLogRequest struct {
 	// The ID of the request to retrieve.
 	RequestID string `pathParam:"style=simple,explode=false,name=requestID"`
-}
-
-type GetRequestFromEventLogRequest struct {
-	PathParams GetRequestFromEventLogPathParams
 }
 
 type GetRequestFromEventLogResponse struct {

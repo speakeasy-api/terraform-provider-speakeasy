@@ -7,13 +7,9 @@ import (
 	"speakeasy/internal/sdk/pkg/models/shared"
 )
 
-type GetAllAPIEndpointsPathParams struct {
+type GetAllAPIEndpointsRequest struct {
 	// The ID of the Api to retrieve ApiEndpoints for.
 	APIID string `pathParam:"style=simple,explode=false,name=apiID"`
-}
-
-type GetAllAPIEndpointsRequest struct {
-	PathParams GetAllAPIEndpointsPathParams
 }
 
 type GetAllAPIEndpointsResponse struct {

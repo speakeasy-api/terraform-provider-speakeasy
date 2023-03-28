@@ -7,13 +7,9 @@ import (
 	"speakeasy/internal/sdk/pkg/models/shared"
 )
 
-type GetPluginPathParams struct {
+type GetPluginRequest struct {
 	// The ID of the plugin to get.
 	PluginID string `pathParam:"style=simple,explode=false,name=pluginID"`
-}
-
-type GetPluginRequest struct {
-	PathParams GetPluginPathParams
 }
 
 type GetPluginResponse struct {

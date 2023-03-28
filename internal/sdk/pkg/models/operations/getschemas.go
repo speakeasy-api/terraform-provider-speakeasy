@@ -7,15 +7,11 @@ import (
 	"speakeasy/internal/sdk/pkg/models/shared"
 )
 
-type GetSchemasPathParams struct {
+type GetSchemasRequest struct {
 	// The ID of the Api to retrieve schemas for.
 	APIID string `pathParam:"style=simple,explode=false,name=apiID"`
 	// The version ID of the Api to delete metadata for.
 	VersionID string `pathParam:"style=simple,explode=false,name=versionID"`
-}
-
-type GetSchemasRequest struct {
-	PathParams GetSchemasPathParams
 }
 
 type GetSchemasResponse struct {

@@ -7,13 +7,9 @@ import (
 	"speakeasy/internal/sdk/pkg/models/shared"
 )
 
-type RevokeEmbedAccessTokenPathParams struct {
+type RevokeEmbedAccessTokenRequest struct {
 	// The ID of the EmbedToken to revoke.
 	TokenID string `pathParam:"style=simple,explode=false,name=tokenID"`
-}
-
-type RevokeEmbedAccessTokenRequest struct {
-	PathParams RevokeEmbedAccessTokenPathParams
 }
 
 type RevokeEmbedAccessTokenResponse struct {

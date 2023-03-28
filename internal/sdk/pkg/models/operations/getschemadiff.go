@@ -7,7 +7,7 @@ import (
 	"speakeasy/internal/sdk/pkg/models/shared"
 )
 
-type GetSchemaDiffPathParams struct {
+type GetSchemaDiffRequest struct {
 	// The ID of the Api to retrieve schemas for.
 	APIID string `pathParam:"style=simple,explode=false,name=apiID"`
 	// The base revision ID of the schema to retrieve.
@@ -16,10 +16,6 @@ type GetSchemaDiffPathParams struct {
 	TargetRevisionID string `pathParam:"style=simple,explode=false,name=targetRevisionID"`
 	// The version ID of the Api to delete metadata for.
 	VersionID string `pathParam:"style=simple,explode=false,name=versionID"`
-}
-
-type GetSchemaDiffRequest struct {
-	PathParams GetSchemaDiffPathParams
 }
 
 type GetSchemaDiffResponse struct {

@@ -7,13 +7,9 @@ import (
 	"speakeasy/internal/sdk/pkg/models/shared"
 )
 
-type GenerateRequestPostmanCollectionPathParams struct {
+type GenerateRequestPostmanCollectionRequest struct {
 	// The ID of the request to retrieve.
 	RequestID string `pathParam:"style=simple,explode=false,name=requestID"`
-}
-
-type GenerateRequestPostmanCollectionRequest struct {
-	PathParams GenerateRequestPostmanCollectionPathParams
 }
 
 type GenerateRequestPostmanCollectionResponse struct {

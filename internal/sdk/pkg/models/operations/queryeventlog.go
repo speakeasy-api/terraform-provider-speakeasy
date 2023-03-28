@@ -7,13 +7,9 @@ import (
 	"speakeasy/internal/sdk/pkg/models/shared"
 )
 
-type QueryEventLogQueryParams struct {
+type QueryEventLogRequest struct {
 	// The filter to apply to the query.
 	Filters *shared.Filters `queryParam:"serialization=json,name=filters"`
-}
-
-type QueryEventLogRequest struct {
-	QueryParams QueryEventLogQueryParams
 }
 
 type QueryEventLogResponse struct {

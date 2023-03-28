@@ -7,19 +7,15 @@ import (
 	"speakeasy/internal/sdk/pkg/models/shared"
 )
 
-type UpsertAPIEndpointPathParams struct {
+type UpsertAPIEndpointRequest struct {
+	// A JSON representation of the ApiEndpoint to upsert.
+	APIEndpointInput shared.APIEndpointInput `request:"mediaType=application/json"`
 	// The ID of the ApiEndpoint to upsert.
 	APIEndpointID string `pathParam:"style=simple,explode=false,name=apiEndpointID"`
 	// The ID of the Api the ApiEndpoint belongs to.
 	APIID string `pathParam:"style=simple,explode=false,name=apiID"`
 	// The version ID of the Api the ApiEndpoint belongs to.
 	VersionID string `pathParam:"style=simple,explode=false,name=versionID"`
-}
-
-type UpsertAPIEndpointRequest struct {
-	PathParams UpsertAPIEndpointPathParams
-	// A JSON representation of the ApiEndpoint to upsert.
-	Request shared.APIEndpointInput `request:"mediaType=application/json"`
 }
 
 type UpsertAPIEndpointResponse struct {

@@ -7,17 +7,13 @@ import (
 	"speakeasy/internal/sdk/pkg/models/shared"
 )
 
-type DeleteSchemaPathParams struct {
+type DeleteSchemaRequest struct {
 	// The ID of the Api to delete schemas for.
 	APIID string `pathParam:"style=simple,explode=false,name=apiID"`
 	// The revision ID of the schema to delete.
 	RevisionID string `pathParam:"style=simple,explode=false,name=revisionID"`
 	// The version ID of the Api to delete metadata for.
 	VersionID string `pathParam:"style=simple,explode=false,name=versionID"`
-}
-
-type DeleteSchemaRequest struct {
-	PathParams DeleteSchemaPathParams
 }
 
 type DeleteSchemaResponse struct {

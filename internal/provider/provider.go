@@ -64,10 +64,7 @@ func (p *SpeakeasyProvider) Configure(ctx context.Context, req provider.Configur
 		ServerURL = "https://api.prod.speakeasyapi.dev"
 	}
 
-	apiKey1 := data.APIKey.ValueString()
-	apiKey := shared.SchemeAPIKey{
-		APIKey: apiKey1,
-	}
+	apiKey := data.APIKey.ValueString()
 	security := shared.Security{
 		APIKey: apiKey,
 	}

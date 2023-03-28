@@ -13,15 +13,11 @@ type GetApisOp struct {
 	And bool `queryParam:"name=and"`
 }
 
-type GetApisQueryParams struct {
+type GetApisRequest struct {
 	// Metadata to filter Apis on
 	Metadata map[string][]string `queryParam:"style=deepObject,explode=true,name=metadata"`
 	// Configuration for filter operations
 	Op *GetApisOp `queryParam:"style=deepObject,explode=true,name=op"`
-}
-
-type GetApisRequest struct {
-	QueryParams GetApisQueryParams
 }
 
 type GetApisResponse struct {

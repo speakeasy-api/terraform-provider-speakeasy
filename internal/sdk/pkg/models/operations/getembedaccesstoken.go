@@ -7,17 +7,13 @@ import (
 	"speakeasy/internal/sdk/pkg/models/shared"
 )
 
-type GetEmbedAccessTokenQueryParams struct {
+type GetEmbedAccessTokenRequest struct {
 	// The description of the embed access token.
 	Description *string `queryParam:"style=form,explode=true,name=description"`
 	// The duration (in minutes) of the embed access token.
 	Duration *int64 `queryParam:"style=form,explode=true,name=duration"`
 	// The filter to apply to the query.
 	Filters *shared.Filters `queryParam:"serialization=json,name=filters"`
-}
-
-type GetEmbedAccessTokenRequest struct {
-	QueryParams GetEmbedAccessTokenQueryParams
 }
 
 type GetEmbedAccessTokenResponse struct {

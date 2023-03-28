@@ -7,15 +7,11 @@ import (
 	"speakeasy/internal/sdk/pkg/models/shared"
 )
 
-type GetVersionMetadataPathParams struct {
+type GetVersionMetadataRequest struct {
 	// The ID of the Api to retrieve metadata for.
 	APIID string `pathParam:"style=simple,explode=false,name=apiID"`
 	// The version ID of the Api to retrieve metadata for.
 	VersionID string `pathParam:"style=simple,explode=false,name=versionID"`
-}
-
-type GetVersionMetadataRequest struct {
-	PathParams GetVersionMetadataPathParams
 }
 
 type GetVersionMetadataResponse struct {

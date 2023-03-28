@@ -7,13 +7,9 @@ import (
 	"speakeasy/internal/sdk/pkg/models/shared"
 )
 
-type DeletePluginPathParams struct {
+type DeletePluginRequest struct {
 	// The ID of the plugin to delete.
 	PluginID string `pathParam:"style=simple,explode=false,name=pluginID"`
-}
-
-type DeletePluginRequest struct {
-	PathParams DeletePluginPathParams
 }
 
 type DeletePluginResponse struct {

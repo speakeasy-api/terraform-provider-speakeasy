@@ -7,17 +7,13 @@ import (
 	"speakeasy/internal/sdk/pkg/models/shared"
 )
 
-type FindAPIEndpointPathParams struct {
+type FindAPIEndpointRequest struct {
 	// The ID of the Api the ApiEndpoint belongs to.
 	APIID string `pathParam:"style=simple,explode=false,name=apiID"`
 	// The displayName of the ApiEndpoint to find (set by operationId from OpenAPI schema).
 	DisplayName string `pathParam:"style=simple,explode=false,name=displayName"`
 	// The version ID of the Api the ApiEndpoint belongs to.
 	VersionID string `pathParam:"style=simple,explode=false,name=versionID"`
-}
-
-type FindAPIEndpointRequest struct {
-	PathParams FindAPIEndpointPathParams
 }
 
 type FindAPIEndpointResponse struct {
