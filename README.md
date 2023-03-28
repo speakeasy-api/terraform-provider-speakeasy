@@ -10,13 +10,13 @@ It is under active development and you may experience breaking changes. Please p
 ## SDK Installation
 
 To install this provider, copy and paste this code into your Terraform configuration. Then, run `terraform init`.
-	
+
 ```hcl
 terraform {
   required_providers {
     speakeasy = {
       source  = "speakeasy-api/speakeasy"
-      version = "0.0.3"
+      version = "0.0.4"
     }
   }
 }
