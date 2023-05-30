@@ -2,7 +2,7 @@ terraform {
   required_providers {
     speakeasy = {
       source  = "speakeasy-api/speakeasy"
-      version = "0.0.4"
+      version = "0.0.5"
     }
   }
 }
@@ -32,6 +32,6 @@ const handler = (data) => {
     }
 }
 EOM
-  title        = "test plugin via terraform"
+  title        = "test plugin test update"
   workspace_id = "tr-test"
 }

@@ -6,10 +6,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/big"
 	"reflect"
 	"regexp"
 	"strings"
 	"time"
+
+	"speakeasy/internal/sdk/pkg/types"
 )
 
 const (
@@ -90,6 +93,9 @@ func parseStructTag(tagKey string, field reflect.StructField) map[string]string 
 func parseParamTag(tagKey string, field reflect.StructField, defaultStyle string, defaultExplode bool) *paramTag {
 	// example `{tagKey}:"style=simple,explode=false,name=apiID"`
 	values := parseStructTag(tagKey, field)
+	if values == nil {
+		return nil
+	}
 
 	tag := &paramTag{
 		Style:     defaultStyle,
@@ -117,6 +123,10 @@ func valToString(val interface{}) string {
 	switch v := val.(type) {
 	case time.Time:
 		return v.Format(time.RFC3339Nano)
+	case types.BigInt:
+		return v.String()
+	case big.Int:
+		return v.String()
 	default:
 		return fmt.Sprintf("%v", v)
 	}

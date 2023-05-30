@@ -3,8 +3,10 @@
 package sdk
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"speakeasy/internal/sdk/pkg/models/operations"
 	"speakeasy/internal/sdk/pkg/models/shared"
@@ -33,105 +35,6 @@ func newPlugins(defaultClient, securityClient HTTPClient, serverURL, language, s
 	}
 }
 
-// DeletePlugin - Delete a plugin
-func (s *plugins) DeletePlugin(ctx context.Context, request operations.DeletePluginRequest) (*operations.DeletePluginResponse, error) {
-	baseURL := s.serverURL
-	url := utils.GenerateURL(ctx, baseURL, "/v1/plugins/{pluginID}", request, nil)
-
-	req, err := http.NewRequestWithContext(ctx, "DELETE", url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("error creating request: %w", err)
-	}
-
-	client := s.securityClient
-
-	httpRes, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("error sending request: %w", err)
-	}
-	if httpRes == nil {
-		return nil, fmt.Errorf("error sending request: no response")
-	}
-	defer httpRes.Body.Close()
-
-	contentType := httpRes.Header.Get("Content-Type")
-
-	res := &operations.DeletePluginResponse{
-		StatusCode:  httpRes.StatusCode,
-		ContentType: contentType,
-		RawResponse: httpRes,
-	}
-	switch {
-	case httpRes.StatusCode == 200:
-	default:
-		switch {
-		case utils.MatchContentType(contentType, `application/json`):
-			var out *shared.Error
-			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
-				return nil, err
-			}
-
-			res.Error = out
-		}
-	}
-
-	return res, nil
-}
-
-// GetPlugin - Get a plugin
-func (s *plugins) GetPlugin(ctx context.Context, request operations.GetPluginRequest) (*operations.GetPluginResponse, error) {
-	baseURL := s.serverURL
-	url := utils.GenerateURL(ctx, baseURL, "/v1/plugins/{pluginID}", request, nil)
-
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("error creating request: %w", err)
-	}
-
-	client := s.securityClient
-
-	httpRes, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("error sending request: %w", err)
-	}
-	if httpRes == nil {
-		return nil, fmt.Errorf("error sending request: no response")
-	}
-	defer httpRes.Body.Close()
-
-	contentType := httpRes.Header.Get("Content-Type")
-
-	res := &operations.GetPluginResponse{
-		StatusCode:  httpRes.StatusCode,
-		ContentType: contentType,
-		RawResponse: httpRes,
-	}
-	switch {
-	case httpRes.StatusCode == 200:
-		switch {
-		case utils.MatchContentType(contentType, `application/json`):
-			var out *shared.Plugin
-			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
-				return nil, err
-			}
-
-			res.Plugin = out
-		}
-	default:
-		switch {
-		case utils.MatchContentType(contentType, `application/json`):
-			var out *shared.Error
-			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
-				return nil, err
-			}
-
-			res.Error = out
-		}
-	}
-
-	return res, nil
-}
-
 // GetPlugins - Get all plugins for the current workspace.
 func (s *plugins) GetPlugins(ctx context.Context) (*operations.GetPluginsResponse, error) {
 	baseURL := s.serverURL
@@ -141,6 +44,8 @@ func (s *plugins) GetPlugins(ctx context.Context) (*operations.GetPluginsRespons
 	if err != nil {
 		return nil, fmt.Errorf("error creating request: %w", err)
 	}
+	req.Header.Set("Accept", "application/json;q=1, application/json;q=0")
+	req.Header.Set("user-agent", fmt.Sprintf("speakeasy-sdk/%s %s %s", s.language, s.sdkVersion, s.genVersion))
 
 	client := s.securityClient
 
@@ -151,7 +56,13 @@ func (s *plugins) GetPlugins(ctx context.Context) (*operations.GetPluginsRespons
 	if httpRes == nil {
 		return nil, fmt.Errorf("error sending request: no response")
 	}
-	defer httpRes.Body.Close()
+
+	rawBody, err := io.ReadAll(httpRes.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading response body: %w", err)
+	}
+	httpRes.Body.Close()
+	httpRes.Body = io.NopCloser(bytes.NewBuffer(rawBody))
 
 	contentType := httpRes.Header.Get("Content-Type")
 
@@ -165,7 +76,7 @@ func (s *plugins) GetPlugins(ctx context.Context) (*operations.GetPluginsRespons
 		switch {
 		case utils.MatchContentType(contentType, `application/json`):
 			var out []shared.Plugin
-			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
+			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out); err != nil {
 				return nil, err
 			}
 
@@ -175,7 +86,7 @@ func (s *plugins) GetPlugins(ctx context.Context) (*operations.GetPluginsRespons
 		switch {
 		case utils.MatchContentType(contentType, `application/json`):
 			var out *shared.Error
-			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
+			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out); err != nil {
 				return nil, err
 			}
 
@@ -189,12 +100,17 @@ func (s *plugins) GetPlugins(ctx context.Context) (*operations.GetPluginsRespons
 // RunPlugin - Run a plugin
 func (s *plugins) RunPlugin(ctx context.Context, request operations.RunPluginRequest) (*operations.RunPluginResponse, error) {
 	baseURL := s.serverURL
-	url := utils.GenerateURL(ctx, baseURL, "/v1/plugins/{pluginID}", request, nil)
+	url, err := utils.GenerateURL(ctx, baseURL, "/v1/plugins/{pluginID}", request, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error generating URL: %w", err)
+	}
 
 	req, err := http.NewRequestWithContext(ctx, "POST", url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("error creating request: %w", err)
 	}
+	req.Header.Set("Accept", "application/json;q=1, application/json;q=0")
+	req.Header.Set("user-agent", fmt.Sprintf("speakeasy-sdk/%s %s %s", s.language, s.sdkVersion, s.genVersion))
 
 	if err := utils.PopulateQueryParams(ctx, req, request, nil); err != nil {
 		return nil, fmt.Errorf("error populating query params: %w", err)
@@ -209,7 +125,13 @@ func (s *plugins) RunPlugin(ctx context.Context, request operations.RunPluginReq
 	if httpRes == nil {
 		return nil, fmt.Errorf("error sending request: no response")
 	}
-	defer httpRes.Body.Close()
+
+	rawBody, err := io.ReadAll(httpRes.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading response body: %w", err)
+	}
+	httpRes.Body.Close()
+	httpRes.Body = io.NopCloser(bytes.NewBuffer(rawBody))
 
 	contentType := httpRes.Header.Get("Content-Type")
 
@@ -223,7 +145,7 @@ func (s *plugins) RunPlugin(ctx context.Context, request operations.RunPluginReq
 		switch {
 		case utils.MatchContentType(contentType, `application/json`):
 			var out []shared.BoundedRequest
-			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
+			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out); err != nil {
 				return nil, err
 			}
 
@@ -233,7 +155,7 @@ func (s *plugins) RunPlugin(ctx context.Context, request operations.RunPluginReq
 		switch {
 		case utils.MatchContentType(contentType, `application/json`):
 			var out *shared.Error
-			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
+			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out); err != nil {
 				return nil, err
 			}
 
@@ -261,6 +183,8 @@ func (s *plugins) UpsertPlugin(ctx context.Context, request shared.Plugin) (*ope
 	if err != nil {
 		return nil, fmt.Errorf("error creating request: %w", err)
 	}
+	req.Header.Set("Accept", "application/json;q=1, application/json;q=0")
+	req.Header.Set("user-agent", fmt.Sprintf("speakeasy-sdk/%s %s %s", s.language, s.sdkVersion, s.genVersion))
 
 	req.Header.Set("Content-Type", reqContentType)
 
@@ -273,7 +197,13 @@ func (s *plugins) UpsertPlugin(ctx context.Context, request shared.Plugin) (*ope
 	if httpRes == nil {
 		return nil, fmt.Errorf("error sending request: no response")
 	}
-	defer httpRes.Body.Close()
+
+	rawBody, err := io.ReadAll(httpRes.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading response body: %w", err)
+	}
+	httpRes.Body.Close()
+	httpRes.Body = io.NopCloser(bytes.NewBuffer(rawBody))
 
 	contentType := httpRes.Header.Get("Content-Type")
 
@@ -287,7 +217,7 @@ func (s *plugins) UpsertPlugin(ctx context.Context, request shared.Plugin) (*ope
 		switch {
 		case utils.MatchContentType(contentType, `application/json`):
 			var out *shared.Plugin
-			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
+			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out); err != nil {
 				return nil, err
 			}
 
@@ -297,7 +227,7 @@ func (s *plugins) UpsertPlugin(ctx context.Context, request shared.Plugin) (*ope
 		switch {
 		case utils.MatchContentType(contentType, `application/json`):
 			var out *shared.Error
-			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
+			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out); err != nil {
 				return nil, err
 			}
 

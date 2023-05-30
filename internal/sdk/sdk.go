@@ -3,8 +3,10 @@
 package sdk
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"speakeasy/internal/sdk/pkg/models/operations"
 	"speakeasy/internal/sdk/pkg/models/shared"
@@ -30,13 +32,30 @@ type HTTPClient interface {
 // String provides a helper function to return a pointer to a string
 func String(s string) *string { return &s }
 
+// Bool provides a helper function to return a pointer to a bool
+func Bool(b bool) *bool { return &b }
+
+// Int provides a helper function to return a pointer to an int
+func Int(i int) *int { return &i }
+
+// Int64 provides a helper function to return a pointer to an int64
+func Int64(i int64) *int64 { return &i }
+
+// Float32 provides a helper function to return a pointer to a float32
+func Float32(f float32) *float32 { return &f }
+
+// Float64 provides a helper function to return a pointer to a float64
+func Float64(f float64) *float64 { return &f }
+
 // SDK - The Speakeasy API allows teams to manage common operations with their APIs
 // https://docs.speakeasyapi.dev - The Speakeasy Platform Documentation
 type SDK struct {
 	// APIEndpoints - REST APIs for managing ApiEndpoint entities
 	APIEndpoints *apiEndpoints
+	APIKeys      *apiKeys
 	// Apis - REST APIs for managing Api entities
-	Apis *apis
+	Apis      *apis
+	Dashboard *dashboard
 	// Embeds - REST APIs for managing embeds
 	Embeds *embeds
 	// Metadata - REST APIs for managing Version Metadata entities
@@ -45,6 +64,7 @@ type SDK struct {
 	Plugins *plugins
 	// Requests - REST APIs for retrieving request information
 	Requests *requests
+	SDKs     *sdKs
 	// Schemas - REST APIs for managing Schema entities
 	Schemas *schemas
 
@@ -119,7 +139,7 @@ func WithSecurity(security shared.Security) SDKOption {
 // New creates a new instance of the SDK with the provided options
 func New(opts ...SDKOption) *SDK {
 	sdk := &SDK{
-		_language:   "go",
+		_language:   "terraform",
 		_sdkVersion: "0.0.4",
 		_genVersion: "internal",
 	}
@@ -152,7 +172,25 @@ func New(opts ...SDKOption) *SDK {
 		sdk._genVersion,
 	)
 
+	sdk.APIKeys = newAPIKeys(
+		sdk._defaultClient,
+		sdk._securityClient,
+		sdk._serverURL,
+		sdk._language,
+		sdk._sdkVersion,
+		sdk._genVersion,
+	)
+
 	sdk.Apis = newApis(
+		sdk._defaultClient,
+		sdk._securityClient,
+		sdk._serverURL,
+		sdk._language,
+		sdk._sdkVersion,
+		sdk._genVersion,
+	)
+
+	sdk.Dashboard = newDashboard(
 		sdk._defaultClient,
 		sdk._securityClient,
 		sdk._serverURL,
@@ -197,6 +235,15 @@ func New(opts ...SDKOption) *SDK {
 		sdk._genVersion,
 	)
 
+	sdk.SDKs = newSDKs(
+		sdk._defaultClient,
+		sdk._securityClient,
+		sdk._serverURL,
+		sdk._language,
+		sdk._sdkVersion,
+		sdk._genVersion,
+	)
+
 	sdk.Schemas = newSchemas(
 		sdk._defaultClient,
 		sdk._securityClient,
@@ -209,15 +256,20 @@ func New(opts ...SDKOption) *SDK {
 	return sdk
 }
 
-// ValidateAPIKey - Validate the current api key.
-func (s *SDK) ValidateAPIKey(ctx context.Context) (*operations.ValidateAPIKeyResponse, error) {
+// DeletePlugin - Delete a plugin
+func (s *SDK) DeletePlugin(ctx context.Context, request operations.DeletePluginRequest) (*operations.DeletePluginResponse, error) {
 	baseURL := s._serverURL
-	url := strings.TrimSuffix(baseURL, "/") + "/v1/auth/validate"
+	url, err := utils.GenerateURL(ctx, baseURL, "/v1/plugins/{pluginID}", request, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error generating URL: %w", err)
+	}
 
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	req, err := http.NewRequestWithContext(ctx, "DELETE", url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("error creating request: %w", err)
 	}
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("user-agent", fmt.Sprintf("speakeasy-sdk/%s %s %s", s._language, s._sdkVersion, s._genVersion))
 
 	client := s._securityClient
 
@@ -228,7 +280,131 @@ func (s *SDK) ValidateAPIKey(ctx context.Context) (*operations.ValidateAPIKeyRes
 	if httpRes == nil {
 		return nil, fmt.Errorf("error sending request: no response")
 	}
-	defer httpRes.Body.Close()
+
+	rawBody, err := io.ReadAll(httpRes.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading response body: %w", err)
+	}
+	httpRes.Body.Close()
+	httpRes.Body = io.NopCloser(bytes.NewBuffer(rawBody))
+
+	contentType := httpRes.Header.Get("Content-Type")
+
+	res := &operations.DeletePluginResponse{
+		StatusCode:  httpRes.StatusCode,
+		ContentType: contentType,
+		RawResponse: httpRes,
+	}
+	switch {
+	case httpRes.StatusCode == 204:
+	default:
+		switch {
+		case utils.MatchContentType(contentType, `application/json`):
+			var out *shared.Error
+			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out); err != nil {
+				return nil, err
+			}
+
+			res.Error = out
+		}
+	}
+
+	return res, nil
+}
+
+// GetPlugin - Get a plugin
+func (s *SDK) GetPlugin(ctx context.Context, request operations.GetPluginRequest) (*operations.GetPluginResponse, error) {
+	baseURL := s._serverURL
+	url, err := utils.GenerateURL(ctx, baseURL, "/v1/plugins/{pluginID}", request, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error generating URL: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error creating request: %w", err)
+	}
+	req.Header.Set("Accept", "application/json;q=1, application/json;q=0")
+	req.Header.Set("user-agent", fmt.Sprintf("speakeasy-sdk/%s %s %s", s._language, s._sdkVersion, s._genVersion))
+
+	client := s._securityClient
+
+	httpRes, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error sending request: %w", err)
+	}
+	if httpRes == nil {
+		return nil, fmt.Errorf("error sending request: no response")
+	}
+
+	rawBody, err := io.ReadAll(httpRes.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading response body: %w", err)
+	}
+	httpRes.Body.Close()
+	httpRes.Body = io.NopCloser(bytes.NewBuffer(rawBody))
+
+	contentType := httpRes.Header.Get("Content-Type")
+
+	res := &operations.GetPluginResponse{
+		StatusCode:  httpRes.StatusCode,
+		ContentType: contentType,
+		RawResponse: httpRes,
+	}
+	switch {
+	case httpRes.StatusCode == 200:
+		switch {
+		case utils.MatchContentType(contentType, `application/json`):
+			var out *shared.Plugin
+			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out); err != nil {
+				return nil, err
+			}
+
+			res.Plugin = out
+		}
+	default:
+		switch {
+		case utils.MatchContentType(contentType, `application/json`):
+			var out *shared.Error
+			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out); err != nil {
+				return nil, err
+			}
+
+			res.Error = out
+		}
+	}
+
+	return res, nil
+}
+
+// ValidateAPIKey - Validate the current api key.
+func (s *SDK) ValidateAPIKey(ctx context.Context) (*operations.ValidateAPIKeyResponse, error) {
+	baseURL := s._serverURL
+	url := strings.TrimSuffix(baseURL, "/") + "/v1/auth/validate"
+
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error creating request: %w", err)
+	}
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("user-agent", fmt.Sprintf("speakeasy-sdk/%s %s %s", s._language, s._sdkVersion, s._genVersion))
+
+	client := s._securityClient
+
+	httpRes, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error sending request: %w", err)
+	}
+	if httpRes == nil {
+		return nil, fmt.Errorf("error sending request: no response")
+	}
+
+	rawBody, err := io.ReadAll(httpRes.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading response body: %w", err)
+	}
+	httpRes.Body.Close()
+	httpRes.Body = io.NopCloser(bytes.NewBuffer(rawBody))
 
 	contentType := httpRes.Header.Get("Content-Type")
 
@@ -243,7 +419,7 @@ func (s *SDK) ValidateAPIKey(ctx context.Context) (*operations.ValidateAPIKeyRes
 		switch {
 		case utils.MatchContentType(contentType, `application/json`):
 			var out *shared.Error
-			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
+			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out); err != nil {
 				return nil, err
 			}
 

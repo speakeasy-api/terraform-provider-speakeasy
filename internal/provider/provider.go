@@ -40,6 +40,7 @@ func (p *SpeakeasyProvider) Schema(ctx context.Context, req provider.SchemaReque
 			"server_url": schema.StringAttribute{
 				MarkdownDescription: "Server URL (defaults to https://api.prod.speakeasyapi.dev)",
 				Optional:            true,
+				Required:            false,
 			},
 			"api_key": schema.StringAttribute{
 				Optional:  true,
@@ -81,7 +82,11 @@ func (p *SpeakeasyProvider) Configure(ctx context.Context, req provider.Configur
 
 func (p *SpeakeasyProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		NewAPIResource,
+		NewAPIKeyResource,
 		NewPluginResource,
+		NewPortalResource,
+		NewSDKConfigurationResource,
 	}
 }
 

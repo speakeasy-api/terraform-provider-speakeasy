@@ -3,8 +3,10 @@
 package sdk
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"speakeasy/internal/sdk/pkg/models/operations"
 	"speakeasy/internal/sdk/pkg/models/shared"
@@ -35,12 +37,17 @@ func newMetadata(defaultClient, securityClient HTTPClient, serverURL, language, 
 // DeleteVersionMetadata - Delete metadata for a particular apiID and versionID.
 func (s *metadata) DeleteVersionMetadata(ctx context.Context, request operations.DeleteVersionMetadataRequest) (*operations.DeleteVersionMetadataResponse, error) {
 	baseURL := s.serverURL
-	url := utils.GenerateURL(ctx, baseURL, "/v1/apis/{apiID}/version/{versionID}/metadata/{metaKey}/{metaValue}", request, nil)
+	url, err := utils.GenerateURL(ctx, baseURL, "/v1/apis/{apiID}/version/{versionID}/metadata/{metaKey}/{metaValue}", request, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error generating URL: %w", err)
+	}
 
 	req, err := http.NewRequestWithContext(ctx, "DELETE", url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("error creating request: %w", err)
 	}
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("user-agent", fmt.Sprintf("speakeasy-sdk/%s %s %s", s.language, s.sdkVersion, s.genVersion))
 
 	client := s.securityClient
 
@@ -51,7 +58,13 @@ func (s *metadata) DeleteVersionMetadata(ctx context.Context, request operations
 	if httpRes == nil {
 		return nil, fmt.Errorf("error sending request: no response")
 	}
-	defer httpRes.Body.Close()
+
+	rawBody, err := io.ReadAll(httpRes.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading response body: %w", err)
+	}
+	httpRes.Body.Close()
+	httpRes.Body = io.NopCloser(bytes.NewBuffer(rawBody))
 
 	contentType := httpRes.Header.Get("Content-Type")
 
@@ -66,7 +79,7 @@ func (s *metadata) DeleteVersionMetadata(ctx context.Context, request operations
 		switch {
 		case utils.MatchContentType(contentType, `application/json`):
 			var out *shared.Error
-			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
+			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out); err != nil {
 				return nil, err
 			}
 
@@ -80,12 +93,17 @@ func (s *metadata) DeleteVersionMetadata(ctx context.Context, request operations
 // GetVersionMetadata - Get all metadata for a particular apiID and versionID.
 func (s *metadata) GetVersionMetadata(ctx context.Context, request operations.GetVersionMetadataRequest) (*operations.GetVersionMetadataResponse, error) {
 	baseURL := s.serverURL
-	url := utils.GenerateURL(ctx, baseURL, "/v1/apis/{apiID}/version/{versionID}/metadata", request, nil)
+	url, err := utils.GenerateURL(ctx, baseURL, "/v1/apis/{apiID}/version/{versionID}/metadata", request, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error generating URL: %w", err)
+	}
 
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("error creating request: %w", err)
 	}
+	req.Header.Set("Accept", "application/json;q=1, application/json;q=0")
+	req.Header.Set("user-agent", fmt.Sprintf("speakeasy-sdk/%s %s %s", s.language, s.sdkVersion, s.genVersion))
 
 	client := s.securityClient
 
@@ -96,7 +114,13 @@ func (s *metadata) GetVersionMetadata(ctx context.Context, request operations.Ge
 	if httpRes == nil {
 		return nil, fmt.Errorf("error sending request: no response")
 	}
-	defer httpRes.Body.Close()
+
+	rawBody, err := io.ReadAll(httpRes.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading response body: %w", err)
+	}
+	httpRes.Body.Close()
+	httpRes.Body = io.NopCloser(bytes.NewBuffer(rawBody))
 
 	contentType := httpRes.Header.Get("Content-Type")
 
@@ -110,7 +134,7 @@ func (s *metadata) GetVersionMetadata(ctx context.Context, request operations.Ge
 		switch {
 		case utils.MatchContentType(contentType, `application/json`):
 			var out []shared.VersionMetadata
-			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
+			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out); err != nil {
 				return nil, err
 			}
 
@@ -120,7 +144,7 @@ func (s *metadata) GetVersionMetadata(ctx context.Context, request operations.Ge
 		switch {
 		case utils.MatchContentType(contentType, `application/json`):
 			var out *shared.Error
-			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
+			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out); err != nil {
 				return nil, err
 			}
 
@@ -134,7 +158,10 @@ func (s *metadata) GetVersionMetadata(ctx context.Context, request operations.Ge
 // InsertVersionMetadata - Insert metadata for a particular apiID and versionID.
 func (s *metadata) InsertVersionMetadata(ctx context.Context, request operations.InsertVersionMetadataRequest) (*operations.InsertVersionMetadataResponse, error) {
 	baseURL := s.serverURL
-	url := utils.GenerateURL(ctx, baseURL, "/v1/apis/{apiID}/version/{versionID}/metadata", request, nil)
+	url, err := utils.GenerateURL(ctx, baseURL, "/v1/apis/{apiID}/version/{versionID}/metadata", request, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error generating URL: %w", err)
+	}
 
 	bodyReader, reqContentType, err := utils.SerializeRequestBody(ctx, request, "VersionMetadataInput", "json")
 	if err != nil {
@@ -148,6 +175,8 @@ func (s *metadata) InsertVersionMetadata(ctx context.Context, request operations
 	if err != nil {
 		return nil, fmt.Errorf("error creating request: %w", err)
 	}
+	req.Header.Set("Accept", "application/json;q=1, application/json;q=0")
+	req.Header.Set("user-agent", fmt.Sprintf("speakeasy-sdk/%s %s %s", s.language, s.sdkVersion, s.genVersion))
 
 	req.Header.Set("Content-Type", reqContentType)
 
@@ -160,7 +189,13 @@ func (s *metadata) InsertVersionMetadata(ctx context.Context, request operations
 	if httpRes == nil {
 		return nil, fmt.Errorf("error sending request: no response")
 	}
-	defer httpRes.Body.Close()
+
+	rawBody, err := io.ReadAll(httpRes.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading response body: %w", err)
+	}
+	httpRes.Body.Close()
+	httpRes.Body = io.NopCloser(bytes.NewBuffer(rawBody))
 
 	contentType := httpRes.Header.Get("Content-Type")
 
@@ -174,7 +209,7 @@ func (s *metadata) InsertVersionMetadata(ctx context.Context, request operations
 		switch {
 		case utils.MatchContentType(contentType, `application/json`):
 			var out *shared.VersionMetadata
-			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
+			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out); err != nil {
 				return nil, err
 			}
 
@@ -184,7 +219,7 @@ func (s *metadata) InsertVersionMetadata(ctx context.Context, request operations
 		switch {
 		case utils.MatchContentType(contentType, `application/json`):
 			var out *shared.Error
-			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
+			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out); err != nil {
 				return nil, err
 			}
 
