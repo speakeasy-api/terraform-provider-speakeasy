@@ -27,6 +27,8 @@ type RegisterSchemaRequest struct {
 }
 
 type RegisterSchemaResponse struct {
+	// OK
+	API         *shared.API
 	ContentType string
 	// Default error response
 	Error       *shared.Error

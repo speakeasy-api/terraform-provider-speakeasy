@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func (r *PluginResourceModel) ToSDKType() *shared.Plugin {
+func (r *PluginResourceModel) ToCreateSDKType() *shared.Plugin {
 	code := r.Code.ValueString()
 	createdAt := new(time.Time)
 	if !r.CreatedAt.IsUnknown() && !r.CreatedAt.IsNull() {
@@ -41,10 +41,19 @@ func (r *PluginResourceModel) ToSDKType() *shared.Plugin {
 		WorkspaceID: workspaceID,
 	}
 	return &out
-
 }
 
-func (r *PluginResourceModel) RefreshFromSDKType(resp *shared.Plugin) {
+func (r *PluginResourceModel) ToUpdateSDKType() *shared.Plugin {
+	out := r.ToCreateSDKType()
+	return out
+}
+
+func (r *PluginResourceModel) ToDeleteSDKType() *shared.Plugin {
+	out := r.ToCreateSDKType()
+	return out
+}
+
+func (r *PluginResourceModel) RefreshFromCreateResponse(resp *shared.Plugin) {
 	r.Code = types.StringValue(resp.Code)
 	if resp.CreatedAt != nil {
 		r.CreatedAt = types.StringValue(resp.CreatedAt.Format(time.RFC3339))
@@ -64,5 +73,8 @@ func (r *PluginResourceModel) RefreshFromSDKType(resp *shared.Plugin) {
 		r.UpdatedAt = types.StringNull()
 	}
 	r.WorkspaceID = types.StringValue(resp.WorkspaceID)
+}
 
+func (r *PluginResourceModel) RefreshFromUpdateResponse(resp *shared.Plugin) {
+	r.RefreshFromCreateResponse(resp)
 }

@@ -6,18 +6,6 @@ import (
 	"time"
 )
 
-// APIInput - An Api is representation of a API (a collection of API Endpoints) within the Speakeasy Platform.
-type APIInput struct {
-	// The ID of this Api. This is a human-readable name (subject to change).
-	APIID string `json:"api_id"`
-	// A detailed description of the Api.
-	Description string `json:"description"`
-	// A set of values associated with a meta_data key. This field is only set on get requests.
-	MetaData map[string][]string `json:"meta_data,omitempty"`
-	// The version ID of this Api. This is semantic version identifier.
-	VersionID string `json:"version_id"`
-}
-
 // API - An Api is representation of a API (a collection of API Endpoints) within the Speakeasy Platform.
 type API struct {
 	// The ID of this Api. This is a human-readable name (subject to change).
@@ -36,4 +24,16 @@ type API struct {
 	VersionID string `json:"version_id"`
 	// The workspace ID this Api belongs to.
 	WorkspaceID string `json:"workspace_id"`
+}
+
+// APIInput - An Api is representation of a API (a collection of API Endpoints) within the Speakeasy Platform.
+type APIInput struct {
+	// The ID of this Api. This is a human-readable name (subject to change).
+	APIID string `json:"api_id"`
+	// A detailed description of the Api.
+	Description string `json:"description"`
+	// A set of values associated with a meta_data key. This field is only set on get requests.
+	MetaData map[string][]string `json:"meta_data,omitempty"`
+	// The version ID of this Api. This is semantic version identifier.
+	VersionID string `json:"version_id"`
 }
